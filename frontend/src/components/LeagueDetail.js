@@ -1,0 +1,223 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import axios from 'axios';
+
+function LeagueDetail() {
+  const { id } = useParams();
+  const [league, setLeague] = useState(null);
+  const [teams, setTeams] = useState([]);
+  const [standings, setStandings] = useState([]);
+  const [matches, setMatches] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('standings');
+
+  const fetchLeagueData = async () => {
+    try {
+      const [leagueRes, matchesRes] = await Promise.all([
+        axios.get(`/api/leagues/${id}`),
+        axios.get(`/api/matches?league_id=${id}`)
+      ]);
+      
+      setLeague(leagueRes.data);
+      setTeams(leagueRes.data.teams || []);
+      setStandings(leagueRes.data.teams || []);
+      setMatches(matchesRes.data);
+    } catch (error) {
+      console.error('Error fetching league data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLeagueData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);  const renderTeamLogo = (color1, color2, size = 30) => {
+    return (
+      <div
+        className="team-logo"
+        style={{
+          width: size,
+          height: size,
+          background: `linear-gradient(45deg, ${color1} 50%, ${color2} 50%)`,
+          borderRadius: '50%',
+          display: 'inline-block',
+          marginRight: '10px'
+        }}
+      />
+    );
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('tr-TR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="container">
+        <div className="loading">Lig bilgileri yükleniyor...</div>
+      </div>
+    );
+  }
+
+  if (!league) {
+    return (
+      <div className="container">
+        <div className="alert alert-danger">Lig bulunamadı!</div>
+        <Link to="/" className="btn">Ana Sayfaya Dön</Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container">
+      <div className="header">
+        <h1>⚽ {league.name}</h1>
+        <div className="nav">
+          <Link to="/" className="nav-button">Ana Sayfa</Link>
+          <button 
+            className={`nav-button ${activeTab === 'standings' ? 'active' : ''}`}
+            onClick={() => setActiveTab('standings')}
+          >
+            Puan Durumu
+          </button>
+          <button 
+            className={`nav-button ${activeTab === 'matches' ? 'active' : ''}`}
+            onClick={() => setActiveTab('matches')}
+          >
+            Maçlar
+          </button>
+          <button 
+            className={`nav-button ${activeTab === 'teams' ? 'active' : ''}`}
+            onClick={() => setActiveTab('teams')}
+          >
+            Takımlar
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'standings' && (
+        <div className="card">
+          <h2>📊 Puan Durumu</h2>
+          {standings.length === 0 ? (
+            <div className="alert alert-info">
+              Henüz maç oynanmamış. Puan durumu güncellenecek.
+            </div>
+          ) : (
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Sıra</th>
+                  <th>Takım</th>
+                  <th>O</th>
+                  <th>G</th>
+                  <th>B</th>
+                  <th>M</th>
+                  <th>A</th>
+                  <th>Y</th>
+                  <th>Av</th>
+                  <th>P</th>
+                </tr>
+              </thead>
+              <tbody>
+                {standings.map((team, index) => (
+                  <tr key={team.id}>
+                    <td>{index + 1}</td>
+                    <td>
+                      {renderTeamLogo(team.color1, team.color2)}
+                      <Link to={`/team/${team.id}`} style={{textDecoration: 'none', color: '#1e3c72', fontWeight: '500'}}>
+                        {team.name}
+                      </Link>
+                    </td>
+                    <td>{team.played}</td>
+                    <td>{team.won}</td>
+                    <td>{team.drawn}</td>
+                    <td>{team.lost}</td>
+                    <td>{team.goals_for}</td>
+                    <td>{team.goals_against}</td>
+                    <td>{team.goals_for - team.goals_against}</td>
+                    <td><strong>{team.points}</strong></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'matches' && (
+        <div className="card">
+          <h2>⚽ Maçlar</h2>
+          {matches.length === 0 ? (
+            <div className="alert alert-info">
+              Henüz fikstür oluşturulmamış.
+            </div>
+          ) : (
+            <div className="matches-list">
+              {matches.map(match => (
+                <div key={match.id} className="match-card">
+                  <div className="match-teams">
+                    <div className="team-info">
+                      {renderTeamLogo(match.team1_color1, match.team1_color2)}
+                      <span>{match.team1_name}</span>
+                    </div>
+                    <div className="match-score">
+                      {match.status === 'completed' ? (
+                        `${match.team1_score} - ${match.team2_score}`
+                      ) : (
+                        'vs'
+                      )}
+                    </div>
+                    <div className="team-info">
+                      {renderTeamLogo(match.team2_color1, match.team2_color2)}
+                      <span>{match.team2_name}</span>
+                    </div>
+                  </div>
+                  <div className="match-details">
+                    <div><strong>Tarih:</strong> {formatDate(match.match_date)}</div>
+                    <div><strong>Saha:</strong> {match.venue}</div>
+                    <div><strong>Hava:</strong> {match.weather}</div>
+                    <div><strong>Hafta:</strong> {match.week}</div>
+                    <div className={`match-status ${match.status}`}>
+                      {match.status === 'completed' ? 'Tamamlandı' : 'Planlandı'}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'teams' && (
+        <div className="card">
+          <h2>👥 Takımlar</h2>
+          {teams.length === 0 ? (
+            <div className="alert alert-info">
+              Bu ligde henüz takım bulunmuyor.
+            </div>
+          ) : (
+            <div className="teams-grid">
+              {teams.map(team => (
+                <div key={team.id} className="team-card">
+                  {renderTeamLogo(team.color1, team.color2, 60)}
+                  <h3>{team.name}</h3>
+                  <Link to={`/team/${team.id}`} className="btn">Takım Detayı</Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default LeagueDetail;
