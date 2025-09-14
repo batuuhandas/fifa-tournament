@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return { 
         success: false, 
-        error: error.response?.data?.error || 'Giriş başarısız' 
+        error: (error.response && error.response.data && error.response.data.error) || 'Giriş başarısız' 
       };
     }
   };

@@ -23,7 +23,7 @@ console.log('Axios instance baseURL:', api.defaults.baseURL);
 api.interceptors.request.use(
   (config) => {
     console.log('API Request Details:', {
-      method: config.method?.toUpperCase(),
+      method: config.method && config.method.toUpperCase(),
       baseURL: config.baseURL,
       url: config.url,
       fullURL: config.baseURL + config.url
@@ -43,24 +43,25 @@ api.interceptors.request.use(
 // Add response interceptor for error handling
 api.interceptors.response.use(
   (response) => {
-    console.log('API Response:', response.config?.method?.toUpperCase(), response.config?.url, response.status);
+    const method = response.config && response.config.method && response.config.method.toUpperCase();
+    const url = response.config && response.config.url;
+    console.log('API Response:', method, url, response.status);
     return response;
   },
   (error) => {
     console.error('API Response Error:', {
-      url: error.config?.url,
-      method: error.config?.method,
-      status: error.response?.status,
+      url: error.config && error.config.url,
+      method: error.config && error.config.method,
+      status: error.response && error.response.status,
       message: error.message,
-      data: error.response?.data
+      data: error.response && error.response.data
     });
     
-    if (error.response?.status === 401) {
-      // Token expired or invalid
+    if (error.response && error.response.status === 401) {
       localStorage.removeItem('token');
-      localStorage.removeItem('isLoggedIn');
       window.location.href = '/admin';
     }
+    
     return Promise.reject(error);
   }
 );

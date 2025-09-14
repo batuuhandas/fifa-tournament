@@ -150,7 +150,7 @@ function AdminPanel() {
                 <div key={league.id} className="league-item">
                   <div className="league-info">
                     <h3>{league.name}</h3>
-                    <p>Takım sayısı: {league.teams?.length || 0}</p>
+                    <p>Takım sayısı: {(league.teams && league.teams.length) || 0}</p>
                   </div>
                   <div className="league-actions">
                     <button 

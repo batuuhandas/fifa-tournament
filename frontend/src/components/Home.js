@@ -26,9 +26,9 @@ function Home() {
       console.error('Ligler yüklenirken hata:', error);
       console.error('Error details:', {
         message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-        url: error.config?.url
+        status: error.response && error.response.status,
+        data: error.response && error.response.data,
+        url: error.config && error.config.url
       });
     } finally {
       setLoading(false);
