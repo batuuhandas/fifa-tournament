@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import api from '../api';
 
 function TeamDetail() {
   const { id } = useParams();
@@ -9,8 +8,13 @@ function TeamDetail() {
 
   const fetchTeamData = async () => {
     try {
-      const response = await api.get(`/api/teams/${id}`);
-      setTeamData(response.data);
+      // Geçici çözüm: Teams endpoint için Vercel API kullan
+      const response = await fetch(`/api/teams/${id}`);
+      if (!response.ok) {
+        throw new Error('Team not found');
+      }
+      const data = await response.json();
+      setTeamData(data);
     } catch (error) {
       console.error('Takım bilgileri yüklenirken hata:', error);
     } finally {
