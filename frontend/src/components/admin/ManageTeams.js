@@ -253,13 +253,13 @@ function ManageTeams({ league, onBack }) {
             <tbody>
               {Array.isArray(teams) && teams.map(team => (
                 <tr key={team.id}>
-                  <td>{renderTeamLogo(team.color1, team.color2)}</td>
+                  <td>{renderTeamLogo(team.logo_color1 || team.color1, team.logo_color2 || team.color2)}</td>
                   <td><strong>{team.name}</strong></td>
                   <td>
-                    <span style={{ color: team.color1 }}>●</span>
-                    <span style={{ color: team.color2 }}>●</span>
+                    <span style={{ color: team.logo_color1 || team.color1 }}>●</span>
+                    <span style={{ color: team.logo_color2 || team.color2 }}>●</span>
                     <small style={{ marginLeft: '10px' }}>
-                      {team.color1} / {team.color2}
+                      {team.logo_color1 || team.color1} / {team.logo_color2 || team.color2}
                     </small>
                   </td>
                   <td>
