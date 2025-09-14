@@ -4,7 +4,7 @@ const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 require('dotenv').config();
 
-// Teams endpoint fix - restart
+// Teams endpoint fix - restart - auto deploy trigger
 const app = express();
 const PORT = process.env.PORT || 5000;
 
