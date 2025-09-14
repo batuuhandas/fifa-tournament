@@ -9,16 +9,32 @@ const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'https://fifa-tournament-frontend.vercel.app',
-    'https://fifa-tournament-frontend-git-main-batuuhandas.vercel.app',
-    'https://fifa-tournament-frontend-batuuhandas.vercel.app',
-    'https://fifa-tournament-tracker-g4s695g12.vercel.app',
-    'https://fifa-tournament-tracker-bvuzrhim2.vercel.app',
-    'https://fifa-tournament-tracker.vercel.app'
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allowed origins
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      /^https:\/\/fifa-tournament.*\.vercel\.app$/
+    ];
+    
+    // Check if origin is allowed
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      if (typeof allowedOrigin === 'string') {
+        return origin === allowedOrigin;
+      } else {
+        return allowedOrigin.test(origin);
+      }
+    });
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
