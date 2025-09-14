@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 
 function Home() {
   const [leagues, setLeagues] = useState([]);
@@ -10,12 +10,13 @@ function Home() {
     fetchLeagues();
   }, []);
 
-  const fetchLeagues = async () => {
+    const fetchLeagues = async () => {
     try {
-      const response = await axios.get('/api/leagues');
+      setLoading(true);
+      const response = await api.get('/api/leagues');
       setLeagues(response.data);
     } catch (error) {
-      console.error('Error fetching leagues:', error);
+      console.error('Ligler yüklenirken hata:', error);
     } finally {
       setLoading(false);
     }

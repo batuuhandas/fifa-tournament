@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../api';
 
 function CreateLeague({ onLeagueCreated }) {
   const [formData, setFormData] = useState({
@@ -16,7 +16,7 @@ function CreateLeague({ onLeagueCreated }) {
     setMessage('');
 
     try {
-      await axios.post('/api/leagues', formData);
+      await api.post('/api/leagues', formData);
       setMessage('Lig başarıyla oluşturuldu!');
       setFormData({ name: '', team_count: 8, rounds: 1 });
       onLeagueCreated();

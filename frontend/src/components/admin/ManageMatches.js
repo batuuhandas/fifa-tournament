@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api';
 
 function ManageMatches({ league, onBack }) {
   const [matches, setMatches] = useState([]);
@@ -19,7 +19,7 @@ function ManageMatches({ league, onBack }) {
 
   const fetchMatches = async () => {
     try {
-      const response = await axios.get(`/api/matches?league_id=${league.id}`);
+      const response = await api.get(`/api/matches?league_id=${league.id}`);
       setMatches(response.data);
     } catch (error) {
       console.error('Error fetching matches:', error);
@@ -61,11 +61,11 @@ function ManageMatches({ league, onBack }) {
 
       if (updateData.team1_score !== null && updateData.team2_score !== null) {
         // Update match result
-        await axios.put(`/api/matches/${selectedMatch.id}/result`, updateData);
+        await api.put(`/api/matches/${selectedMatch.id}/result`, updateData);
         setMessage('Maç sonucu başarıyla güncellendi!');
       } else {
         // Update match schedule only
-        await axios.put(`/api/matches/${selectedMatch.id}/schedule`, {
+        await api.put(`/api/matches/${selectedMatch.id}/schedule`, {
           match_date: updateData.match_date,
           venue: updateData.venue,
           weather: updateData.weather

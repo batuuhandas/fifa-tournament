@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 
 function TeamDetail() {
   const { id } = useParams();
@@ -9,10 +9,10 @@ function TeamDetail() {
 
   const fetchTeamData = async () => {
     try {
-      const response = await axios.get(`/api/teams/${id}`);
+      const response = await api.get(`/api/teams/${id}`);
       setTeamData(response.data);
     } catch (error) {
-      console.error('Error fetching team data:', error);
+      console.error('Takım bilgileri yüklenirken hata:', error);
     } finally {
       setLoading(false);
     }

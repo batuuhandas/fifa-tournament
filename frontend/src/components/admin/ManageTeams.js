@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api';
 
 function ManageTeams({ league, onBack }) {
   const [teams, setTeams] = useState([]);
@@ -13,7 +13,7 @@ function ManageTeams({ league, onBack }) {
 
   const fetchTeams = async () => {
     try {
-      const response = await axios.get(`/api/teams?league_id=${league.id}`);
+      const response = await api.get(`/api/teams?league_id=${league.id}`);
       setTeams(response.data);
     } catch (error) {
       console.error('Error fetching teams:', error);
@@ -37,7 +37,7 @@ function ManageTeams({ league, onBack }) {
     setMessage('');
 
     try {
-      await axios.post('/api/teams', {
+      await api.post('/api/teams', {
         ...formData,
         league_id: league.id
       });
@@ -55,7 +55,7 @@ function ManageTeams({ league, onBack }) {
   const deleteTeam = async (teamId) => {
     if (window.confirm('Bu takımı silmek istediğinizden emin misiniz? Tüm maçları da silinecek!')) {
       try {
-        await axios.delete(`/api/teams/${teamId}`);
+        await api.delete(`/api/teams/${teamId}`);
         fetchTeams();
         setMessage('Takım başarıyla silindi!');
       } catch (error) {
@@ -74,7 +74,7 @@ function ManageTeams({ league, onBack }) {
     if (window.confirm('Yeni fikstür oluşturulacak. Mevcut fikstür silinecek. Devam etmek istiyor musunuz?')) {
       try {
         setLoading(true);
-        await axios.post('/api/teams/generate-fixtures', {
+        await api.post('/api/teams/generate-fixtures', {
           league_id: league.id
         });
         setMessage('Fikstür başarıyla oluşturuldu!');
