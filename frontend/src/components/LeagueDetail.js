@@ -160,8 +160,8 @@ function LeagueDetail() {
                       <span>{match.home_team_name}</span>
                     </div>
                     <div className="match-score">
-                      {match.team1_score !== null && match.team2_score !== null ? (
-                        `${match.team1_score} - ${match.team2_score}`
+                      {match.home_score !== null && match.away_score !== null ? (
+                        `${match.home_score} - ${match.away_score}`
                       ) : (
                         'vs'
                       )}
@@ -171,9 +171,13 @@ function LeagueDetail() {
                       <span>{match.away_team_name}</span>
                     </div>
                   </div>
-                  {match.team1_score !== null && match.team2_score !== null && (
+                  {match.home_score !== null && match.away_score !== null ? (
                     <div className="match-status completed">
                       Tamamlandı
+                    </div>
+                  ) : (
+                    <div className="match-status planned">
+                      Planlandı
                     </div>
                   )}
                 </div>
