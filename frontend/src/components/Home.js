@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../api';
+import axios from 'axios';
 
 function Home() {
   const [leagues, setLeagues] = useState([]);
@@ -13,10 +13,23 @@ function Home() {
     const fetchLeagues = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/leagues');
+      console.log('Fetching leagues with direct axios call...');
+      
+      // Test: Direct axios call with full URL
+      const response = await axios.get('https://fifa-tournament-backend.onrender.com/api/leagues');
+      console.log('Direct axios call successful:', response.data);
+      console.log('Response status:', response.status);
+      console.log('Number of leagues:', response.data.length);
+      
       setLeagues(response.data);
     } catch (error) {
       console.error('Ligler yüklenirken hata:', error);
+      console.error('Error details:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        url: error.config?.url
+      });
     } finally {
       setLoading(false);
     }

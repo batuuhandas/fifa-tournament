@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Backend URL - her zaman production kullan (local test için)
-const API_BASE_URL = 'https://fifa-tournament-backend.onrender.com';
+// Backend URL - environment variable kullan
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://fifa-tournament-backend.onrender.com';
 
 console.log('Environment:', process.env.NODE_ENV);
 console.log('API Base URL:', API_BASE_URL);
@@ -16,10 +16,18 @@ const api = axios.create({
   withCredentials: false
 });
 
+// Test: Force check if baseURL is working
+console.log('Axios instance baseURL:', api.defaults.baseURL);
+
 // Add request interceptor to include auth token
 api.interceptors.request.use(
   (config) => {
-    console.log('API Request:', config.method?.toUpperCase(), config.url);
+    console.log('API Request Details:', {
+      method: config.method?.toUpperCase(),
+      baseURL: config.baseURL,
+      url: config.url,
+      fullURL: config.baseURL + config.url
+    });
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
