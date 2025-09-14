@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 5001;
 app.use(cors({
   origin: [
     'http://localhost:3000',
+    'http://localhost:3001',
     'https://fifa-tournament-frontend.vercel.app',
     'https://fifa-tournament-frontend-git-main-batuuhandas.vercel.app',
     'https://fifa-tournament-frontend-batuuhandas.vercel.app'

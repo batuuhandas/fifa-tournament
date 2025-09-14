@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-// Production backend URL
+// Backend URL - her zaman production kullan (local test için)
 const API_BASE_URL = 'https://fifa-tournament-backend.onrender.com';
 
+console.log('Environment:', process.env.NODE_ENV);
 console.log('API Base URL:', API_BASE_URL);
 
 // Create axios instance with base configuration
