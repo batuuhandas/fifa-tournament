@@ -11,9 +11,13 @@ const PORT = process.env.PORT || 5001;
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://fifa-tournament-frontend.vercel.app'
+    'https://fifa-tournament-frontend.vercel.app',
+    'https://fifa-tournament-frontend-git-main-batuuhandas.vercel.app',
+    'https://fifa-tournament-frontend-batuuhandas.vercel.app'
   ],
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 

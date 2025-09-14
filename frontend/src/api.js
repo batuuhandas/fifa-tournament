@@ -3,6 +3,8 @@ import axios from 'axios';
 // Production backend URL
 const API_BASE_URL = 'https://fifa-tournament-backend.onrender.com';
 
+console.log('API Base URL:', API_BASE_URL);
+
 // Create axios instance with base configuration
 const api = axios.create({
   baseURL: API_BASE_URL,

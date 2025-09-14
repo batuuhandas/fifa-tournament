@@ -8,6 +8,8 @@ import AdminPanel from './components/admin/AdminPanel';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
+  console.log('App.js loaded, current path:', window.location.pathname);
+  
   return (
     <AuthProvider>
       <Router>
