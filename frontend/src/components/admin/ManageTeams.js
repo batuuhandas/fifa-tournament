@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../api';
+import axios from 'axios';
+
+const API_BASE_URL = 'https://fifa-tournament-backend.onrender.com';
 
 function ManageTeams({ league, onBack }) {
   const [teams, setTeams] = useState([]);
@@ -13,10 +15,11 @@ function ManageTeams({ league, onBack }) {
 
   const fetchTeams = async () => {
     try {
-      const response = await api.get(`/api/teams?league_id=${league.id}`);
-      setTeams(response.data);
+      const response = await axios.get(`${API_BASE_URL}/api/teams?league_id=${league.id}`);
+      setTeams(response.data || []);
     } catch (error) {
       console.error('Error fetching teams:', error);
+      setTeams([]);
     }
   };
 

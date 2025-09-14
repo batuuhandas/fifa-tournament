@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../api';
+import axios from 'axios';
+
+const API_BASE_URL = 'https://fifa-tournament-backend.onrender.com';
 
 const AuthContext = createContext();
 
@@ -22,7 +24,13 @@ export const AuthProvider = ({ children }) => {
 
   const verifyToken = async () => {
     try {
-      const response = await api.get('/api/auth/verify');
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_BASE_URL}/api/auth/verify`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       setUser(response.data.user);
     } catch (error) {
       localStorage.removeItem('token');
@@ -33,7 +41,14 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await api.post('/api/auth/login', { username, password });
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, 
+        { username, password },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);
