@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import api from '../../api';
+import axios from 'axios';
 
 function CreateLeague({ onLeagueCreated }) {
   const [formData, setFormData] = useState({
@@ -16,7 +16,13 @@ function CreateLeague({ onLeagueCreated }) {
     setMessage('');
 
     try {
-      await api.post('/api/leagues', formData);
+      const token = localStorage.getItem('token');
+      await axios.post('https://fifa-tournament-backend.onrender.com/api/leagues', formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       setMessage('Lig başarıyla oluşturuldu!');
       setFormData({ name: '', team_count: 8, rounds: 1 });
       onLeagueCreated();
