@@ -20,9 +20,19 @@ function ManageMatches({ league, onBack }) {
   const fetchMatches = async () => {
     try {
       const response = await api.get(`/api/matches?league_id=${league.id}`);
-      setMatches(response.data);
+      console.log('Matches API response:', response.data);
+      const matchesData = response.data;
+      
+      // Ensure we always set an array
+      if (Array.isArray(matchesData)) {
+        setMatches(matchesData);
+      } else {
+        console.warn('Matches data is not an array:', matchesData);
+        setMatches([]);
+      }
     } catch (error) {
       console.error('Error fetching matches:', error);
+      setMatches([]);
     }
   };
 

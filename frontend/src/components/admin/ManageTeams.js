@@ -16,7 +16,16 @@ function ManageTeams({ league, onBack }) {
   const fetchTeams = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/teams?league_id=${league.id}`);
-      setTeams(response.data || []);
+      console.log('Teams API response:', response.data);
+      const teamsData = response.data;
+      
+      // Ensure we always set an array
+      if (Array.isArray(teamsData)) {
+        setTeams(teamsData);
+      } else {
+        console.warn('Teams data is not an array:', teamsData);
+        setTeams([]);
+      }
     } catch (error) {
       console.error('Error fetching teams:', error);
       setTeams([]);
@@ -225,7 +234,7 @@ function ManageTeams({ league, onBack }) {
         </div>
 
         <h3>📋 Takım Listesi</h3>
-        {teams.length === 0 ? (
+        {!Array.isArray(teams) || teams.length === 0 ? (
           <div className="alert alert-info">
             Bu ligde henüz takım bulunmuyor.
           </div>
@@ -240,7 +249,7 @@ function ManageTeams({ league, onBack }) {
               </tr>
             </thead>
             <tbody>
-              {teams.map(team => (
+              {Array.isArray(teams) && teams.map(team => (
                 <tr key={team.id}>
                   <td>{renderTeamLogo(team.color1, team.color2)}</td>
                   <td><strong>{team.name}</strong></td>

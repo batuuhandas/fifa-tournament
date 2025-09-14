@@ -12,6 +12,8 @@ function AdminPanel() {
   const [activeTab, setActiveTab] = useState('leagues');
   const [leagues, setLeagues] = useState([]);
   const [selectedLeague, setSelectedLeague] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -23,10 +25,52 @@ function AdminPanel() {
 
   const fetchLeagues = async () => {
     try {
-      const response = await axios.get('/api/leagues');
-      setLeagues(response.data);
+      setLoading(true);
+      setError(null);
+      console.log('AdminPanel: Fetching leagues...');
+      const response = await axios.get('https://fifa-tournament-backend.onrender.com/api/leagues');
+      console.log('AdminPanel: Leagues fetched successfully:', response.data);
+      
+      const leaguesData = response.data;
+      // Ensure we always set an array
+      if (Array.isArray(leaguesData)) {
+        setLeagues(leaguesData);
+      } else {
+        console.warn('Leagues data is not an array:', leaguesData);
+        setLeagues([]);
+      }
     } catch (error) {
-      console.error('Error fetching leagues:', error);
+      console.error('Ligler yüklenirken hata:', error);
+      setError('Ligler yüklenirken hata oluştu');
+      setLeagues([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLeagueCreated = () => {
+    fetchLeagues();
+    setActiveTab('leagues');
+  };
+
+  const handleDeleteLeague = async (leagueId) => {
+    if (window.confirm('Bu ligi silmek istediğinizden emin misiniz?')) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`https://fifa-tournament-backend.onrender.com/api/leagues/${leagueId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        fetchLeagues();
+        if (selectedLeague && selectedLeague.id === leagueId) {
+          setSelectedLeague(null);
+        }
+      } catch (error) {
+        console.error('Lig silinirken hata:', error);
+        alert('Lig silinirken bir hata oluştu!');
+      }
     }
   };
 
@@ -35,113 +79,116 @@ function AdminPanel() {
     navigate('/');
   };
 
-  const deleteLeague = async (leagueId) => {
-    if (window.confirm('Bu ligi silmek istediğinizden emin misiniz? Tüm takımlar ve maçlar da silinecek!')) {
-      try {
-        await axios.delete(`/api/leagues/${leagueId}`);
-        fetchLeagues();
-        if (selectedLeague && selectedLeague.id === leagueId) {
-          setSelectedLeague(null);
-        }
-      } catch (error) {
-        console.error('Error deleting league:', error);
-        alert('Lig silinirken bir hata oluştu!');
-      }
-    }
-  };
-
   if (!user) {
-    return null;
+    return <div>Yetkilendirme kontrol ediliyor...</div>;
+  }
+
+  if (loading) {
+    return <div>Veriler yükleniyor...</div>;
+  }
+
+  if (error) {
+    return (
+      <div>
+        <p>Hata: {error}</p>
+        <button onClick={fetchLeagues}>Tekrar Dene</button>
+      </div>
+    );
   }
 
   return (
     <div className="container">
-      <div className="admin-panel">
-        <h2>🛠️ Admin Paneli</h2>
-        <p>Hoş geldin, {user.username}!</p>
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button 
-            className={`btn ${activeTab === 'leagues' ? 'btn-warning' : ''}`}
-            onClick={() => setActiveTab('leagues')}
-          >
-            Lig Yönetimi
-          </button>
-          <button 
-            className={`btn ${activeTab === 'teams' ? 'btn-warning' : ''}`}
-            onClick={() => setActiveTab('teams')}
-            disabled={!selectedLeague}
-          >
-            Takım Yönetimi
-          </button>
-          <button 
-            className={`btn ${activeTab === 'matches' ? 'btn-warning' : ''}`}
-            onClick={() => setActiveTab('matches')}
-            disabled={!selectedLeague}
-          >
-            Maç Yönetimi
-          </button>
-          <button className="btn btn-danger" onClick={handleLogout}>
-            Çıkış Yap
-          </button>
+      <div className="admin-header">
+        <h1>🔧 Admin Paneli</h1>
+        <div className="admin-info">
+          <span>Hoş geldin, {user.username}!</span>
+          <button onClick={handleLogout} className="btn logout-btn">Çıkış Yap</button>
         </div>
       </div>
 
+      <div className="admin-nav">
+        <button 
+          className={`nav-button ${activeTab === 'leagues' ? 'active' : ''}`}
+          onClick={() => setActiveTab('leagues')}
+        >
+          Ligler
+        </button>
+        <button 
+          className={`nav-button ${activeTab === 'create' ? 'active' : ''}`}
+          onClick={() => setActiveTab('create')}
+        >
+          Lig Oluştur
+        </button>
+        {selectedLeague && (
+          <>
+            <button 
+              className={`nav-button ${activeTab === 'teams' ? 'active' : ''}`}
+              onClick={() => setActiveTab('teams')}
+            >
+              Takımlar
+            </button>
+            <button 
+              className={`nav-button ${activeTab === 'matches' ? 'active' : ''}`}
+              onClick={() => setActiveTab('matches')}
+            >
+              Maçlar
+            </button>
+          </>
+        )}
+      </div>
+
       {activeTab === 'leagues' && (
-        <>
-          <CreateLeague onLeagueCreated={fetchLeagues} />
-          
-          <div className="card">
-            <h2>📋 Mevcut Ligler</h2>
-            {leagues.length === 0 ? (
-              <div className="alert alert-info">
-                Henüz hiç lig oluşturulmamış.
-              </div>
-            ) : (
-              <div className="leagues-grid">
-                {leagues.map(league => (
-                  <div key={league.id} className="league-card">
+        <div className="card">
+          <h2>📋 Ligler</h2>
+          {!Array.isArray(leagues) || leagues.length === 0 ? (
+            <div className="alert alert-info">
+              Henüz lig oluşturulmamış. Yeni bir lig oluşturmak için "Lig Oluştur" sekmesine gidin.
+            </div>
+          ) : (
+            <div className="leagues-list">
+              {leagues.map(league => (
+                <div key={league.id} className="league-item">
+                  <div className="league-info">
                     <h3>{league.name}</h3>
-                    <p><strong>Takım Sayısı:</strong> {league.team_count}</p>
-                    <p><strong>Tur Sayısı:</strong> {league.rounds}</p>
-                    <p><strong>Durum:</strong> {league.status === 'active' ? 'Aktif' : 'Tamamlandı'}</p>
-                    <div style={{ marginTop: '1rem' }}>
-                      <button 
-                        className="btn btn-success"
-                        onClick={() => {
-                          setSelectedLeague(league);
-                          setActiveTab('teams');
-                        }}
-                        style={{ marginRight: '0.5rem' }}
-                      >
-                        Yönet
-                      </button>
-                      <button 
-                        className="btn btn-danger"
-                        onClick={() => deleteLeague(league.id)}
-                      >
-                        Sil
-                      </button>
-                    </div>
+                    <p>Takım sayısı: {league.teams?.length || 0}</p>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </>
+                  <div className="league-actions">
+                    <button 
+                      className="btn"
+                      onClick={() => setSelectedLeague(league)}
+                    >
+                      Yönet
+                    </button>
+                    <button 
+                      className="btn btn-danger"
+                      onClick={() => handleDeleteLeague(league.id)}
+                    >
+                      Sil
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {selectedLeague && (
+            <div className="selected-league">
+              <h3>🎯 Seçili Lig: {selectedLeague.name}</h3>
+              <p>Bu lig için takım ve maç yönetimi yapmak üzere yukarıdaki sekmelerden ilgili bölüme geçebilirsiniz.</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'create' && (
+        <CreateLeague onLeagueCreated={handleLeagueCreated} />
       )}
 
       {activeTab === 'teams' && selectedLeague && (
-        <ManageTeams 
-          league={selectedLeague} 
-          onBack={() => setActiveTab('leagues')}
-        />
+        <ManageTeams league={selectedLeague} onUpdate={fetchLeagues} />
       )}
 
       {activeTab === 'matches' && selectedLeague && (
-        <ManageMatches 
-          league={selectedLeague} 
-          onBack={() => setActiveTab('leagues')}
-        />
+        <ManageMatches league={selectedLeague} />
       )}
     </div>
   );
