@@ -50,17 +50,6 @@ function LeagueDetail() {
     );
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('tr-TR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
   if (loading) {
     return (
       <div className="container">
@@ -167,30 +156,26 @@ function LeagueDetail() {
                 <div key={match.id} className="match-card">
                   <div className="match-teams">
                     <div className="team-info">
-                      {renderTeamLogo(match.team1_color1, match.team1_color2)}
-                      <span>{match.team1_name}</span>
+                      {renderTeamLogo(match.home_color1, match.home_color2)}
+                      <span>{match.home_team_name}</span>
                     </div>
                     <div className="match-score">
-                      {match.status === 'completed' ? (
+                      {match.team1_score !== null && match.team2_score !== null ? (
                         `${match.team1_score} - ${match.team2_score}`
                       ) : (
                         'vs'
                       )}
                     </div>
                     <div className="team-info">
-                      {renderTeamLogo(match.team2_color1, match.team2_color2)}
-                      <span>{match.team2_name}</span>
+                      {renderTeamLogo(match.away_color1, match.away_color2)}
+                      <span>{match.away_team_name}</span>
                     </div>
                   </div>
-                  <div className="match-details">
-                    <div><strong>Tarih:</strong> {formatDate(match.match_date)}</div>
-                    <div><strong>Saha:</strong> {match.venue}</div>
-                    <div><strong>Hava:</strong> {match.weather}</div>
-                    <div><strong>Hafta:</strong> {match.week}</div>
-                    <div className={`match-status ${match.status}`}>
-                      {match.status === 'completed' ? 'Tamamlandı' : 'Planlandı'}
+                  {match.team1_score !== null && match.team2_score !== null && (
+                    <div className="match-status completed">
+                      Tamamlandı
                     </div>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
