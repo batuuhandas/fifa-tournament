@@ -4,6 +4,11 @@ const router = express.Router();
 
 const db = new sqlite3.Database('./database/tournament.db');
 
+// Test endpoint
+router.get('/test', (req, res) => {
+  res.json({ message: 'Teams route is working!', timestamp: new Date() });
+});
+
 // Middleware to verify token
 const verifyToken = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -53,14 +58,20 @@ router.get('/league/:leagueId', (req, res) => {
 // Get team by ID with match history
 router.get('/:id', (req, res) => {
   const { id } = req.params;
+  
+  console.log('Teams route called with ID:', id); // Debug log
 
   db.get("SELECT * FROM teams WHERE id = ?", [id], (err, team) => {
     if (err) {
+      console.error('Database error:', err); // Debug log
       return res.status(500).json({ error: 'Failed to fetch team' });
     }
     if (!team) {
+      console.log('Team not found for ID:', id); // Debug log
       return res.status(404).json({ error: 'Team not found' });
     }
+
+    console.log('Team found:', team); // Debug log
 
     // Get match history
     const matchQuery = `
@@ -81,8 +92,11 @@ router.get('/:id', (req, res) => {
 
     db.all(matchQuery, [id, id], (err, matches) => {
       if (err) {
+        console.error('Match query error:', err); // Debug log
         return res.status(500).json({ error: 'Failed to fetch match history' });
       }
+      
+      console.log('Matches found:', matches.length); // Debug log
       res.json({ team, matches });
     });
   });
