@@ -133,7 +133,7 @@ function LeagueDetail() {
                   <tr key={team.id}>
                     <td>{index + 1}</td>
                     <td>
-                      {renderTeamLogo(team.color1, team.color2)}
+                      {renderTeamLogo(team.logo_color1 || team.color1, team.logo_color2 || team.color2)}
                       <Link to={`/team/${team.id}`} style={{textDecoration: 'none', color: '#1e3c72', fontWeight: '500'}}>
                         {team.name}
                       </Link>

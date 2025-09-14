@@ -39,19 +39,41 @@ module.exports = async (req, res) => {
 
     // GET /api/teams?league_id=X - Lig takımlarını getir
     if (req.method === 'GET' && req.url.startsWith('/api/teams')) {
-      const urlParams = new URLSearchParams(req.url.split('?')[1]);
+      const urlParams = new URLSearchParams(req.url.split('?')[1] || '');
       const leagueId = urlParams.get('league_id');
       
-      return new Promise((resolve) => {
-        db.all('SELECT * FROM teams WHERE league_id = ? ORDER BY points DESC, goals_for - goals_against DESC', 
-               [leagueId], (err, teams) => {
-          if (err) {
-            return res.status(500).json({ message: 'Veritabanı hatası' });
-          }
-          res.json(teams);
-          resolve();
+      // Tek takım getir
+      if (req.url.match(/\/api\/teams\/(\d+)$/)) {
+        const teamId = req.url.split('/').pop();
+        return new Promise((resolve) => {
+          db.get('SELECT * FROM teams WHERE id = ?', [teamId], (err, team) => {
+            if (err) {
+              return res.status(500).json({ message: 'Veritabanı hatası' });
+            }
+            if (!team) {
+              return res.status(404).json({ message: 'Takım bulunamadı!' });
+            }
+            res.json(team);
+            resolve();
+          });
         });
-      });
+      }
+      
+      // Lig takımlarını getir
+      if (leagueId) {
+        return new Promise((resolve) => {
+          db.all('SELECT * FROM teams WHERE league_id = ? ORDER BY points DESC, goals_for - goals_against DESC', 
+                 [leagueId], (err, teams) => {
+            if (err) {
+              return res.status(500).json({ message: 'Veritabanı hatası' });
+            }
+            res.json(teams);
+            resolve();
+          });
+        });
+      }
+      
+      return res.status(400).json({ message: 'Geçersiz istek' });
     }
 
     // POST /api/teams - Yeni takım ekle
