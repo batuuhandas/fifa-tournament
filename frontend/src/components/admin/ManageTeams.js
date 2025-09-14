@@ -159,10 +159,10 @@ function ManageTeams({ league, onBack }) {
         )}
 
         <div style={{ marginBottom: '2rem' }}>
-          <strong>Takım Durumu:</strong> {teams.length} / {league.team_count}
+          <strong>Takım Durumu:</strong> {teams.length} / {league.team_count || 'Sınırsız'}
         </div>
 
-        {teams.length < league.team_count && (
+        {(!league.team_count || teams.length < league.team_count) && (
           <form onSubmit={handleSubmit} style={{ marginBottom: '2rem' }}>
             <h3>🆕 Yeni Takım Ekle</h3>
             
