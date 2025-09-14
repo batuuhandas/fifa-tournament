@@ -14,7 +14,10 @@ app.use(cors({
     'http://localhost:3001',
     'https://fifa-tournament-frontend.vercel.app',
     'https://fifa-tournament-frontend-git-main-batuuhandas.vercel.app',
-    'https://fifa-tournament-frontend-batuuhandas.vercel.app'
+    'https://fifa-tournament-frontend-batuuhandas.vercel.app',
+    'https://fifa-tournament-tracker-g4s695g12.vercel.app',
+    'https://fifa-tournament-tracker-bvuzrhim2.vercel.app',
+    'https://fifa-tournament-tracker.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
