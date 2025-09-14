@@ -51,8 +51,10 @@ function ManageTeams({ league, onBack }) {
     try {
       const token = localStorage.getItem('token');
       await axios.post(`${API_BASE_URL}/api/teams`, {
-        ...formData,
-        league_id: league.id
+        league_id: league.id,
+        name: formData.name,
+        logo_color1: formData.color1,
+        logo_color2: formData.color2
       }, {
         headers: {
           'Authorization': `Bearer ${token}`,
