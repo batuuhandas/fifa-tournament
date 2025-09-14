@@ -40,9 +40,15 @@ function ManageTeams({ league, onBack }) {
     setMessage('');
 
     try {
-      await api.post('/api/teams', {
+      const token = localStorage.getItem('token');
+      await axios.post(`${API_BASE_URL}/api/teams`, {
         ...formData,
         league_id: league.id
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       setMessage('Takım başarıyla eklendi!');
       setFormData({ name: '', color1: '#FF0000', color2: '#0000FF' });
@@ -58,7 +64,13 @@ function ManageTeams({ league, onBack }) {
   const deleteTeam = async (teamId) => {
     if (window.confirm('Bu takımı silmek istediğinizden emin misiniz? Tüm maçları da silinecek!')) {
       try {
-        await api.delete(`/api/teams/${teamId}`);
+        const token = localStorage.getItem('token');
+        await axios.delete(`${API_BASE_URL}/api/teams/${teamId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
         fetchTeams();
         setMessage('Takım başarıyla silindi!');
       } catch (error) {
@@ -77,8 +89,14 @@ function ManageTeams({ league, onBack }) {
     if (window.confirm('Yeni fikstür oluşturulacak. Mevcut fikstür silinecek. Devam etmek istiyor musunuz?')) {
       try {
         setLoading(true);
-        await api.post('/api/teams/generate-fixtures', {
+        const token = localStorage.getItem('token');
+        await axios.post(`${API_BASE_URL}/api/teams/generate-fixtures`, {
           league_id: league.id
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         });
         setMessage('Fikstür başarıyla oluşturuldu!');
       } catch (error) {
