@@ -4,6 +4,7 @@ const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 require('dotenv').config();
 
+// Teams endpoint fix - restart
 const app = express();
 const PORT = process.env.PORT || 5000;
 
