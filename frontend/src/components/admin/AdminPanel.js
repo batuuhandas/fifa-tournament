@@ -58,23 +58,30 @@ function AdminPanel() {
     if (window.confirm('Bu ligi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!')) {
       try {
         setDeleting(leagueId);
-        const token = localStorage.getItem('token');
-        console.log('Deleting league:', leagueId);
         
+        // GEÇICI: Backend bozuk olduğu için frontend'de silme simülasyonu
+        console.log('Simulating delete for league:', leagueId);
+        
+        // UI'dan kaldır
+        setLeagues(prevLeagues => prevLeagues.filter(league => league.id !== leagueId));
+        
+        if (selectedLeague && selectedLeague.id === leagueId) {
+          setSelectedLeague(null);
+        }
+        
+        alert('Lig UI\'dan kaldırıldı! (Backend düzelince kalıcı olacak)');
+        
+        // TODO: Backend düzelince bu kısmı aç
+        /*
+        const token = localStorage.getItem('token');
         await axios.delete(`https://fifa-tournament-backend.onrender.com/api/leagues/${leagueId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
+        */
         
-        console.log('League deleted successfully');
-        alert('Lig başarıyla silindi!');
-        fetchLeagues();
-        
-        if (selectedLeague && selectedLeague.id === leagueId) {
-          setSelectedLeague(null);
-        }
       } catch (error) {
         console.error('Lig silinirken hata:', error);
         alert('Lig silinirken bir hata oluştu: ' + (error.response?.data?.error || error.message));

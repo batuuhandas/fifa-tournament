@@ -5,7 +5,7 @@ const router = express.Router();
 
 // Database path - production vs development
 const dbPath = process.env.NODE_ENV === 'production' 
-  ? path.join(__dirname, '../database/tournament.db')
+  ? './tournament.db'  // Render'da root'ta
   : './database/tournament.db';
 
 console.log('Leagues route - Database path:', dbPath);

@@ -14,7 +14,14 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 // Database connection
-const db = new sqlite3.Database('./database/tournament.db', (err) => {
+const dbPath = process.env.NODE_ENV === 'production' 
+  ? './tournament.db'  // Render'da root'ta olsun
+  : './database/tournament.db';
+
+console.log('Database path:', dbPath);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
+const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Error opening database:', err);
   } else {
