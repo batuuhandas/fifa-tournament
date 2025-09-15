@@ -1,8 +1,21 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 const router = express.Router();
 
-const db = new sqlite3.Database('./database/tournament.db');
+// Database path - production vs development
+const dbPath = process.env.NODE_ENV === 'production' 
+  ? path.join(__dirname, '../database/tournament.db')
+  : './database/tournament.db';
+
+console.log('Matches route - Database path:', dbPath);
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error('Matches route - Database connection error:', err);
+  } else {
+    console.log('Matches route - Database connected successfully');
+  }
+});
 
 // Middleware to verify token
 const verifyToken = (req, res, next) => {

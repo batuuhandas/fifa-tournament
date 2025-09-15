@@ -2,9 +2,22 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 const router = express.Router();
 
-const db = new sqlite3.Database('./database/tournament.db');
+// Database path - production vs development
+const dbPath = process.env.NODE_ENV === 'production' 
+  ? path.join(__dirname, '../database/tournament.db')
+  : './database/tournament.db';
+
+console.log('Auth route - Database path:', dbPath);
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error('Auth route - Database connection error:', err);
+  } else {
+    console.log('Auth route - Database connected successfully');
+  }
+});
 
 // Admin login
 router.post('/login', (req, res) => {
