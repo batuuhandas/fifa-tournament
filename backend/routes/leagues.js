@@ -19,7 +19,31 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 // Debug endpoint
 router.get('/debug', (req, res) => {
-  res.json({ message: 'Leagues route is working!', timestamp: new Date() });
+  const fs = require('fs');
+  const path = require('path');
+  
+  try {
+    const currentDir = __dirname;
+    const projectRoot = path.join(__dirname, '..');
+    const dbDir = path.join(projectRoot, 'database');
+    const dbFile = path.join(dbDir, 'tournament.db');
+    
+    const debugInfo = {
+      message: 'Leagues route is working!',
+      timestamp: new Date(),
+      currentDir,
+      projectRoot,
+      dbDir,
+      dbFile,
+      dbDirExists: fs.existsSync(dbDir),
+      dbFileExists: fs.existsSync(dbFile),
+      nodeEnv: process.env.NODE_ENV
+    };
+    
+    res.json(debugInfo);
+  } catch (error) {
+    res.status(500).json({ error: error.message, stack: error.stack });
+  }
 });
 
 // Middleware to verify token
