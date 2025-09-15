@@ -77,16 +77,16 @@ router.get('/:id', (req, res) => {
     const matchQuery = `
       SELECT 
         m.*,
-        t1.name as team1_name,
-        t1.color1 as team1_color1,
-        t1.color2 as team1_color2,
-        t2.name as team2_name,
-        t2.color1 as team2_color1,
-        t2.color2 as team2_color2
+        t1.name as home_team_name,
+        t1.color1 as home_color1,
+        t1.color2 as home_color2,
+        t2.name as away_team_name,
+        t2.color1 as away_color1,
+        t2.color2 as away_color2
       FROM matches m
-      JOIN teams t1 ON m.team1_id = t1.id
-      JOIN teams t2 ON m.team2_id = t2.id
-      WHERE m.team1_id = ? OR m.team2_id = ?
+      JOIN teams t1 ON m.home_team_id = t1.id
+      JOIN teams t2 ON m.away_team_id = t2.id
+      WHERE m.home_team_id = ? OR m.away_team_id = ?
       ORDER BY m.match_date DESC
     `;
 
