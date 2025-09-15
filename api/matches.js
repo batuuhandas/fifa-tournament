@@ -17,20 +17,41 @@ module.exports = async (req, res) => {
     const db = getDatabase();
 
     // GET /api/matches?league_id=X - Lig maçlarını getir
+    // GET /api/matches?team_id=X - Takım maçlarını getir
     if (req.method === 'GET' && req.url.startsWith('/api/matches')) {
       const urlParams = new URLSearchParams(req.url.split('?')[1]);
       const leagueId = urlParams.get('league_id');
+      const teamId = urlParams.get('team_id');
       
-      return new Promise((resolve) => {
-        db.all(`SELECT m.*, 
+      let query = '';
+      let params = [];
+      
+      if (leagueId) {
+        query = `SELECT m.*, 
                        ht.name as home_team_name, ht.logo_color1 as home_color1, ht.logo_color2 as home_color2,
                        at.name as away_team_name, at.logo_color1 as away_color1, at.logo_color2 as away_color2
                 FROM matches m
                 JOIN teams ht ON m.home_team_id = ht.id
                 JOIN teams at ON m.away_team_id = at.id
                 WHERE m.league_id = ?
-                ORDER BY m.round_number, m.id`, 
-               [leagueId], (err, matches) => {
+                ORDER BY m.round_number, m.id`;
+        params = [leagueId];
+      } else if (teamId) {
+        query = `SELECT m.*, 
+                       ht.name as home_team_name, ht.logo_color1 as home_color1, ht.logo_color2 as home_color2,
+                       at.name as away_team_name, at.logo_color1 as away_color1, at.logo_color2 as away_color2
+                FROM matches m
+                JOIN teams ht ON m.home_team_id = ht.id
+                JOIN teams at ON m.away_team_id = at.id
+                WHERE m.home_team_id = ? OR m.away_team_id = ?
+                ORDER BY m.round_number, m.id`;
+        params = [teamId, teamId];
+      } else {
+        return res.status(400).json({ message: 'league_id veya team_id parametresi gerekli' });
+      }
+      
+      return new Promise((resolve) => {
+        db.all(query, params, (err, matches) => {
           if (err) {
             return res.status(500).json({ message: 'Veritabanı hatası' });
           }
