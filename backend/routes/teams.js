@@ -6,7 +6,8 @@ const db = new sqlite3.Database('./database/tournament.db');
 
 // Test endpoint
 router.get('/test', (req, res) => {
-  res.json({ message: 'Teams route is working!', timestamp: new Date() });
+  console.log('Teams test endpoint called'); // Debug log
+  res.json({ message: 'Teams route is working!', timestamp: new Date(), pwd: process.cwd() });
 });
 
 // Middleware to verify token
