@@ -107,68 +107,13 @@ function initializeDatabase() {
 // Import routes
 const authRoutes = require('./routes/auth');
 const leagueRoutes = require('./routes/leagues');
+const teamRoutes = require('./routes/teams');
 const matchRoutes = require('./routes/matches');
-
-// Teams routes inline (debug için)
-const express = require('express');
-const teamsRouter = express.Router();
-
-// Teams test endpoint
-teamsRouter.get('/test', (req, res) => {
-  console.log('Inline teams test endpoint called');
-  res.json({ message: 'Inline Teams route is working!', timestamp: new Date() });
-});
-
-// Teams by ID endpoint
-teamsRouter.get('/:id', (req, res) => {
-  const { id } = req.params;
-  console.log('Teams route called with ID:', id);
-
-  db.get("SELECT * FROM teams WHERE id = ?", [id], (err, team) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ error: 'Failed to fetch team' });
-    }
-    if (!team) {
-      console.log('Team not found for ID:', id);
-      return res.status(404).json({ error: 'Team not found' });
-    }
-
-    console.log('Team found:', team);
-
-    // Get match history
-    const matchQuery = `
-      SELECT 
-        m.*,
-        t1.name as home_team_name,
-        t1.color1 as home_color1,
-        t1.color2 as home_color2,
-        t2.name as away_team_name,
-        t2.color1 as away_color1,
-        t2.color2 as away_color2
-      FROM matches m
-      JOIN teams t1 ON m.home_team_id = t1.id
-      JOIN teams t2 ON m.away_team_id = t2.id
-      WHERE m.home_team_id = ? OR m.away_team_id = ?
-      ORDER BY m.match_date DESC
-    `;
-
-    db.all(matchQuery, [id, id], (err, matches) => {
-      if (err) {
-        console.error('Match query error:', err);
-        return res.status(500).json({ error: 'Failed to fetch match history' });
-      }
-      
-      console.log('Matches found:', matches.length);
-      res.json({ team, matches });
-    });
-  });
-});
 
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/leagues', leagueRoutes);
-app.use('/api/teams', teamsRouter);
+app.use('/api/teams', teamRoutes);
 app.use('/api/matches', matchRoutes);
 
 // Serve React app for any non-API routes
