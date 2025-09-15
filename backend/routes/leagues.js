@@ -4,6 +4,11 @@ const router = express.Router();
 
 const db = new sqlite3.Database('./database/tournament.db');
 
+// Debug endpoint
+router.get('/debug', (req, res) => {
+  res.json({ message: 'Leagues route is working!', timestamp: new Date() });
+});
+
 // Middleware to verify token
 const verifyToken = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -120,15 +125,24 @@ router.get('/:id/standings', (req, res) => {
 // Delete league
 router.delete('/:id', verifyToken, (req, res) => {
   const { id } = req.params;
+  console.log('DELETE request received for league ID:', id);
 
   // Delete related data first
   db.serialize(() => {
-    db.run("DELETE FROM matches WHERE league_id = ?", [id]);
-    db.run("DELETE FROM teams WHERE league_id = ?", [id]);
+    db.run("DELETE FROM matches WHERE league_id = ?", [id], (err) => {
+      if (err) console.error('Error deleting matches:', err);
+      else console.log('Matches deleted for league', id);
+    });
+    db.run("DELETE FROM teams WHERE league_id = ?", [id], (err) => {
+      if (err) console.error('Error deleting teams:', err);
+      else console.log('Teams deleted for league', id);
+    });
     db.run("DELETE FROM leagues WHERE id = ?", [id], function(err) {
       if (err) {
+        console.error('Error deleting league:', err);
         return res.status(500).json({ error: 'Failed to delete league' });
       }
+      console.log('League deleted successfully:', id);
       res.json({ message: 'League deleted successfully' });
     });
   });

@@ -5,7 +5,6 @@ import api from '../api';
 function LeagueDetail() {
   const { id } = useParams();
   const [league, setLeague] = useState(null);
-  const [teams, setTeams] = useState([]);
   const [standings, setStandings] = useState([]);
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +18,6 @@ function LeagueDetail() {
       ]);
       
       setLeague(leagueResponse.data);
-      setTeams(leagueResponse.data.teams || []);
       setStandings(leagueResponse.data.teams || []);
       setMatches(matchesResponse.data);
     } catch (error) {
@@ -85,12 +83,6 @@ function LeagueDetail() {
           >
             Maçlar
           </button>
-          <button 
-            className={`nav-button ${activeTab === 'teams' ? 'active' : ''}`}
-            onClick={() => setActiveTab('teams')}
-          >
-            Takımlar
-          </button>
         </div>
       </div>
 
@@ -123,9 +115,9 @@ function LeagueDetail() {
                     <td>{index + 1}</td>
                     <td>
                       {renderTeamLogo(team.logo_color1 || team.color1, team.logo_color2 || team.color2)}
-                      <Link to={`/team/${team.id}`} style={{textDecoration: 'none', color: '#1e3c72', fontWeight: '500'}}>
+                      <span style={{color: '#1e3c72', fontWeight: '500'}}>
                         {team.name}
-                      </Link>
+                      </span>
                     </td>
                     <td>{team.played}</td>
                     <td>{team.won}</td>
@@ -180,27 +172,6 @@ function LeagueDetail() {
                       Planlandı
                     </div>
                   )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === 'teams' && (
-        <div className="card">
-          <h2>👥 Takımlar</h2>
-          {teams.length === 0 ? (
-            <div className="alert alert-info">
-              Bu ligde henüz takım bulunmuyor.
-            </div>
-          ) : (
-            <div className="teams-grid">
-              {teams.map(team => (
-                <div key={team.id} className="team-card">
-                  {renderTeamLogo(team.color1, team.color2, 60)}
-                  <h3>{team.name}</h3>
-                  <Link to={`/team/${team.id}`} className="btn">Takım Detayı</Link>
                 </div>
               ))}
             </div>

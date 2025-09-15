@@ -13,6 +13,7 @@ function AdminPanel() {
   const [leagues, setLeagues] = useState([]);
   const [selectedLeague, setSelectedLeague] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -54,22 +55,31 @@ function AdminPanel() {
   };
 
   const handleDeleteLeague = async (leagueId) => {
-    if (window.confirm('Bu ligi silmek istediğinizden emin misiniz?')) {
+    if (window.confirm('Bu ligi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!')) {
       try {
+        setDeleting(leagueId);
         const token = localStorage.getItem('token');
+        console.log('Deleting league:', leagueId);
+        
         await axios.delete(`https://fifa-tournament-backend.onrender.com/api/leagues/${leagueId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
+        
+        console.log('League deleted successfully');
+        alert('Lig başarıyla silindi!');
         fetchLeagues();
+        
         if (selectedLeague && selectedLeague.id === leagueId) {
           setSelectedLeague(null);
         }
       } catch (error) {
         console.error('Lig silinirken hata:', error);
-        alert('Lig silinirken bir hata oluştu!');
+        alert('Lig silinirken bir hata oluştu: ' + (error.response?.data?.error || error.message));
+      } finally {
+        setDeleting(null);
       }
     }
   };
@@ -162,8 +172,9 @@ function AdminPanel() {
                     <button 
                       className="btn btn-danger"
                       onClick={() => handleDeleteLeague(league.id)}
+                      disabled={deleting === league.id}
                     >
-                      Sil
+                      {deleting === league.id ? 'Siliniyor...' : 'Sil'}
                     </button>
                   </div>
                 </div>
